@@ -1,0 +1,29 @@
+def.var=A
+
+void void1 {
+    print("Hello form void 1")
+}
+void void2 {
+    print("Hello form void 2")
+}
+void void3 {
+    print("Hello form void 3")
+}
+
+A=user.input_var("Enter Number of void to execute 1-3: ")
+if (A=1) {
+    goto void1
+}
+else if (A=2) {
+    goto void2
+}
+else if (A=3) {
+    goto void3
+}
+else {
+    delay=2
+    print("Clearing...")
+    delay=5
+    sys.command(cls)
+    print("cleared!")
+}

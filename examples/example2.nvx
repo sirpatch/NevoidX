@@ -1,0 +1,15 @@
+def.str=NAME,AGE
+def.var=A,B,C,D,E
+NAME=user.input_str("Enter Your name: ")
+AGE=user.input_var("Enter Your age: ")
+print("Hello ",NAME," You're ",AGE," years old")
+print("Welcome in NevoidX")
+print("")
+A=10
+B=20
+C=30
+print("Simple adding.")
+print("We will add ",A," ",B," ",C," "," and D that You will enter.")
+D=user.input_var("Enter number: ")
+E=math(A+B+C+D)
+print("Calculated number: ",E)

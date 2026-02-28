@@ -1,0 +1,5 @@
+def.var=A,B,C
+A=user.input_var("Enter Number: ")
+B=user.input_var("Enter Number: ")
+C=math(A+B)
+print("Calculated number: ",C)

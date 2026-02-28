@@ -1,0 +1,6 @@
+def.math=A
+def.var=B
+A=user.input_math("Enter whole operation to calculate: ")
+print("Operation to calculate: ",A)
+B=math(A)
+print(B)
