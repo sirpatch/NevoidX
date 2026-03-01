@@ -186,6 +186,117 @@ The evaluator now includes additional math functions:
 
 Use them in expressions like `math(sqrt(16) + atan2(y, x))`.
 
+## JSON Support
+New JSON helper module (`NVXJSON`) provides simple encoding and parsing
+of flat objects. Functions are available to scripts via the registration
+mechanism or c‑level API once you add bindings.
+
+### API
+- `nvx_json_pair(out, size, key, value)` – format a single pair.
+- `nvx_json_object(out, size, pairs)` – build object from null‑terminated
+  key/value list.
+- `nvx_json_get(json, key, out, size)` – retrieve value by key.
+
+Example usage in C:
+```c
+char buf[256];
+const char *pairs[] = {"name","Alice","age","30", NULL};
+nvx_json_object(buf, sizeof buf, pairs);
+// buf == "{\"name\":\"Alice\",\"age\":\"30\"}"
+char val[64];
+nvx_json_get(buf, "age", val, sizeof val); // val == "30"
+```
+
+## HTTP Client and Server
+Networking is handled by two new modules.
+
+### `NVXRequests` (client)
+Provides `nvx_http_get` and `nvx_http_post` over plain sockets.
+
+```
+char resp[4096];
+if (nvx_http_get("http://example.com/", resp, sizeof resp) > 0) {
+    print(resp);
+}
+```
+
+### `NVXNet` (server)
+You can register handlers for paths and start a blocking server:
+
+```c
+void hello(const char *body, char *resp, size_t sz) {
+    snprintf(resp, sz, "Hello world!");
+}
+
+int main(void) {
+    nvx_register_route("/hello", hello);
+    nvx_run_server("8080");
+}
+```
+
+Requests module examples (from script):
+```
+# in script may call external C via built-in command extension
+# http_get returns the response body as a string variable (the interpreter marks it as string,
+# so print() will not try to evaluate it as a math expression).
+"result"=nvx.http_get("http://localhost:8080/hello")
+print(result)
+```
+
+## Build and Integration Notes
+The project is now split across multiple `.c`/`.h` files:
+
+```
+src/NevoidX.c          # main entry point
+src/NVXMath.{c,h}       # expression evaluation
+src/NVXVars.{c,h}       # variable storage/types/named blocks
+src/NVXScript.{c,h}     # interpreter and helpers
+src/NVXShell.{c,h}      # interactive shell
+src/NVXJSON.{c,h}       # simple JSON utilities
+src/NVXRequests.{c,h}   # HTTP client
+src/NVXNet.{c,h}        # minimalist HTTP server
+```
+
+Recompile with the networking modules linked:
+
+```sh
+gcc -Wall -std=c11 src/*.c -o build/NevoidX.exe -lws2_32 -lm
+```
+
+## Examples
+### Simple server script
+```nvx
+# not real language yet; demonstration of concept
+var=nvx.http_get("http://api.example.com/data")   # returns body as string
+print(var)
+```
+
+### JSON helper
+
+The `nvx.json_get` function can extract a value from a JSON string. It accepts
+either a literal JSON document or the name of a variable containing JSON. The
+value may be a string, number, boolean, null, or even an object/array – the
+function will return the complete substring for the value. Examples:
+
+```nvx
+json = nvx.http_get("http://httpbin.org/json")
+# fetch from variable, not a literal constant
+slides = nvx.json_get(json, "slideshow")
+print(slides)            # prints nested object
+title = nvx.json_get(json, "title")  # top‑level string
+print(title)
+```
+
+### Calculator script
+```nvx
+def.var=a,b
+print("Enter a:")
+a=user.input_var("")
+print("Enter b:")
+b=user.input_var("")
+print("Sum=", math(a+b))
+```
+
 ## Notes and Limitations
 
 - Variable names must start with a letter or underscore and contain alphanumerics or underscores.
