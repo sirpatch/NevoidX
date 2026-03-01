@@ -1,0 +1,3 @@
+result=nvx.http_get("http://naas.isalman.dev/no")
+no=nvx.json_get(result, "reason")
+print(no)
